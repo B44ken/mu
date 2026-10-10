@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Breadcrumbs, SiteFooter, SiteHeader } from '../../components/common'
+import { RepoGate } from '../../components/auth'
 
-export default () => {
+const UploadForm = () => {
     const [msgs, setMsgs] = useState<string[]>([])
     const inp = (event: React.ChangeEvent<HTMLInputElement>) => {
         Array.from(event.target.files as FileList).forEach(f => {
@@ -13,13 +14,17 @@ export default () => {
     }
 
     return <>
-        <SiteHeader active="repo" />
-        <Breadcrumbs crumbs={["Course Repository", "Upload"]} />
         <div style={{ textAlign: 'center', padding: '3%' }}>
             <h3>Upload a file (or multiple) </h3> <br />
             <input type="file" onInput={inp} multiple />
             {msgs.map(m => <p key={m}>{m}</p>)}
         </div>
-        <SiteFooter />
     </>
 }
+
+export default () => <>
+    <SiteHeader active="repo" />
+    <Breadcrumbs crumbs={["Course Repository", "Upload"]} />
+    <RepoGate><UploadForm /></RepoGate>
+    <SiteFooter />
+</>

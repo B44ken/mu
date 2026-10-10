@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { SiteFooter, SiteHeader } from '../../components/common'
+import { RepoGate } from '../../components/auth'
 
 type Entry = { course: string, year: number | undefined, name: string, tags: string[], file: string }
 
@@ -37,7 +38,7 @@ const CourseSearch = ({ setCourse, course, courses }) => {
     </div>
 }
 
-export default () => {
+const CourseRepository = () => {
     const [files, setFiles] = useState<Entry[]>([])
     const [course, setCourse] = useState('')
     const [oldest, setOldest] = useState(2007)
@@ -49,24 +50,26 @@ export default () => {
     let courseFiles = files.filter(f => f.course == course && (showAll || isTest(f))).filter(f => oldest <= 2007 || f.year >= oldest)
 
     return <>
-        <SiteHeader active='repo' />
-
-        <div className='breadcrumbs pt-5'>
-            <div className='container my-5 py-5 w-75 border shadow rounded bg-white'>
-                <h3 className='text-center'>Course Repository</h3>
-                <CourseSearch setCourse={setCourse} course={course} courses={courses} />
-                <div className='text-center my-2 small text-muted'>
-                    Newer Than... <input className='' type="number" value={oldest} min={2007} max={2025} onChange={e => setOldest(+e.target.value)} />
-                    <span className="px-2"></span>
-                    Tests/Exams Only <input type='checkbox' checked={showAll} onChange={e => setShowAll(e.target.checked)} />
-                </div>
-                <style>{`@media(max-width:600px){.pdf-preview{display:none}}`}</style>
-                <div className='d-flex flex-wrap gap-2 justify-content-center p-3'>
-                    {courseFiles.map(f => <PDFCard key={f.file} entry={f} />)}
-                </div>
-            </div>
+        <CourseSearch setCourse={setCourse} course={course} courses={courses} />
+        <div className='text-center my-2 small text-muted'>
+            Newer Than... <input className='' type="number" value={oldest} min={2007} max={2025} onChange={e => setOldest(+e.target.value)} />
+            <span className="px-2"></span>
+            Tests/Exams Only <input type='checkbox' checked={showAll} onChange={e => setShowAll(e.target.checked)} />
         </div>
-
-        <SiteFooter />
+        <style>{`@media(max-width:600px){.pdf-preview{display:none}}`}</style>
+        <div className='d-flex flex-wrap gap-2 justify-content-center p-3'>
+            {courseFiles.map(f => <PDFCard key={f.file} entry={f} />)}
+        </div>
     </>
 }
+
+export default () => <>
+    <SiteHeader active='repo' />
+    <div className='breadcrumbs pt-5'>
+        <div className='container my-5 py-5 w-75 border shadow rounded bg-white'>
+            <h3 className='text-center'>Course Repository</h3>
+            <RepoGate><CourseRepository /></RepoGate>
+        </div>
+    </div>
+    <SiteFooter />
+</>
