@@ -23,7 +23,6 @@
         "wrangler": "^4.0.0"
     },
     "dependencies": {
-        "@auth/core": "^0.41.3",
         "react-router-dom": "^7.1.1"
     }
 }

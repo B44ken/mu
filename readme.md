@@ -7,16 +7,11 @@ Run `npm ci`, `npm run build`, then `npm run dev`. Open `http://localhost:8788`.
 
 ## repository sign-in
 
-The whole course repository requires a University of Toronto Microsoft account, including file listings, direct PDF links, and uploads. Public site pages remain available. Auth.js verifies the UofT tenant and Microsoft Graph member profile, then stores the session in an encrypted HttpOnly cookie. Sessions last one hour.
+The repository frontend checks `https://uoftauth.boratto.ca/me` with `credentials: 'include'`. A user response shows the repository; `null` shows a sign-in link. Login returns to the original page. The auth service verifies UofT Microsoft member accounts, not current student enrollment.
 
-Copy `.dev.vars.example` to `.dev.vars` for local credentials. Set `AUTH_MICROSOFT_ENTRA_ID_SECRET` to a Microsoft client secret and generate `AUTH_SECRET` with `openssl rand -base64 32`. Keep both secrets server-side. For production, configure these values in Cloudflare Pages variables and secrets, then redeploy.
+The auth service lives in `~/git/uoftauth`; this site needs no Microsoft credentials or auth secrets. `https://muoft.ca` skips the service's consent screen. Other origins, including local development, show consent first.
 
-In the existing Microsoft registration (`aef86eb3-05d9-439d-868d-151580102dac`), add these **web** redirect URIs:
-
-- `http://localhost:8788/api/auth/callback/microsoft-entra-id`
-- `https://<your-site-domain>/api/auth/callback/microsoft-entra-id`
-
-Use delegated Graph `User.Read` and `openid profile email`. No mailbox permissions are needed. Missing credentials keep the repository locked. `GET /api/me` returns the verified user's `id`, primary `email`, and `name`; use `id` as the account key. Account access does not establish current student enrollment.
+This gates the frontend only. Direct repository API and PDF URLs remain public. Cross-site browser calls require third-party cookies.
 
 Run `npm test` for the Pages routing and repository access integration tests, and `npx tsc --noEmit --incremental false` for typechecking.
 
