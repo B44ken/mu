@@ -33,15 +33,15 @@ export default () => {
             <h3 className='text-center'>Upload a past test</h3>
             <label>PDF <input className='form-control' type='file' name='file' accept='application/pdf' required /></label>
             <label>Course <input className='form-control' name='course' placeholder='MAT137Y1' required /></label>
-            <label>Session <select className='form-select' name='session'>
-                <option value=''>Not sure</option>
+            <label>Session (optional) <select className='form-select' name='session'>
+                <option value='' />
                 {sessions().map(s => <option key={s} value={s}>{sessionLabel(s)}</option>)}
             </select></label>
-            <label>Type <select className='form-select' name='type'>
-                <option value=''>Not sure</option>
+            <label>Type (optional) <select className='form-select' name='type'>
+                <option value='' />
                 {types.map(t => <option key={t} value={t}>{t}</option>)}
             </select></label>
-            <label>Number <input className='form-control' name='number' type='number' min={1} placeholder='e.g. 2 for Midterm 2' /></label>
+            <label>Number (optional) <input className='form-control' name='number' type='number' min={1} placeholder='e.g. 2 for Midterm 2' /></label>
             <label><input type='checkbox' name='practice' /> Practice test</label>
             <label><input type='checkbox' name='solutions' /> Has solutions</label>
             <button className='btn btn-primary' disabled={msg == 'Uploading...'}>Upload</button>
