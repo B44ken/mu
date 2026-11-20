@@ -10,7 +10,7 @@ needs pdftoppm (poppler). Then:
 """
 import os, re, shlex, subprocess, sys, urllib.parse, urllib.request
 
-SITE = 'https://muoft.ca/api/repo/'
+SITE = 'https://mu.bbrb.ca/api/repo/'
 
 
 def parse(key):
