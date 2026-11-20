@@ -1,6 +1,6 @@
-export const types = ['midterm', 'final', 'quiz'] as const
+export const types = ['test', 'practice-test', 'exam', 'practice-exam', 'quiz'] as const
 
-export type Meta = { course: string, session: string | null, type: typeof types[number] | null, number: number | null, practice: boolean, solutions: boolean }
+export type Meta = { course: string, session: string | null, type: typeof types[number] | null, number: number | null, solutions: boolean }
 export type Entry = Meta & { id: number, pdf: string, preview: string }
 
 // UofT session codes: 20259 = Fall 2025, 20261 = Winter 2026, 20255 = Summer 2025, 20259-20261 = Fall-Winter 2025-26
@@ -13,7 +13,7 @@ export const sessions = (from = 2005, to = new Date().getFullYear()) =>
         [`${y}9-${y + 1}1`, `${y}9`, `${y}5`, `${y}1`])
 
 export const title = (m: Meta) =>
-    `${m.practice ? 'Practice ' : ''}${m.type ? m.type[0].toUpperCase() + m.type.slice(1) : 'Test'}${m.number ? ` ${m.number}` : ''}`
+    `${(m.type ?? 'test').split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}${m.number ? ` ${m.number}` : ''}`
 
 export function parseMeta(get: (k: string) => unknown): Meta | string {
     const course = String(get('course') ?? '').replace(/\s/g, '').toUpperCase()
@@ -26,5 +26,5 @@ export function parseMeta(get: (k: string) => unknown): Meta | string {
     if (session && !/^\d{5}(-\d{5})?$/.test(session)) return 'bad session'
     if (type && !types.includes(type)) return 'bad type'
     if (number !== null && !(Number.isInteger(number) && number > 0 && number < 20)) return 'bad number'
-    return { course, session, type, number, practice: bool('practice'), solutions: bool('solutions') }
+    return { course, session, type, number, solutions: bool('solutions') }
 }

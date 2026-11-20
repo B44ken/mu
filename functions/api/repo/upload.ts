@@ -18,8 +18,8 @@ export async function onRequestPost(context: any) {
     await bucket.put(`${id}.pdf`, pdf.stream(), { httpMetadata: { contentType: 'application/pdf' } })
     await bucket.put(`previews/${id}.webp`, preview.stream(), { httpMetadata: { contentType: preview.type } })
     await (context.env.DB as D1Database).prepare(
-        'INSERT INTO files (pdf, preview, course, session, type, number, practice, solutions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).bind(`${PUBLIC}${id}.pdf`, `${PUBLIC}previews/${id}.webp`, m.course, m.session, m.type, m.number, +m.practice, +m.solutions).run()
+        'INSERT INTO files (pdf, preview, course, session, type, number, solutions) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).bind(`${PUBLIC}${id}.pdf`, `${PUBLIC}previews/${id}.webp`, m.course, m.session, m.type, m.number, +m.solutions).run()
 
     return new Response('Thanks! It will show up once approved.')
 }

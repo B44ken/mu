@@ -41,8 +41,7 @@ export default () => {
                 <option value='' />
                 {types.map(t => <option key={t} value={t}>{t}</option>)}
             </select></label>
-            <label>Number (optional) <input className='form-control' name='number' type='number' min={1} placeholder='e.g. 2 for Midterm 2' /></label>
-            <label><input type='checkbox' name='practice' /> Practice test</label>
+            <label>Number (optional) <input className='form-control' name='number' type='number' min={1} placeholder='e.g. 2 for Test 2' /></label>
             <label><input type='checkbox' name='solutions' /> Has solutions</label>
             <button className='btn btn-primary' disabled={msg == 'Uploading...'}>Upload</button>
             {msg && <p className='text-center'>{msg}</p>}
