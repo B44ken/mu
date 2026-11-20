@@ -30,20 +30,15 @@ def main(keys_file, out):
     rows, puts = [], []
     for key in keys:
         pdf = f'{out}/pdf/{key.replace("/", "__")}'
-        if not os.path.exists(pdf) or open(pdf, 'rb').read(4) != b'%PDF':
-            if '/' in key:  # the old [path] route can't serve keys with a slash, so read R2 directly
-                subprocess.run(['npx', 'wrangler', 'r2', 'object', 'get', f'muoft/{key}', '--remote', '--file', pdf], check=True, capture_output=True)
-            else:
-                req = urllib.request.Request(SITE + urllib.parse.quote(key), headers={'User-Agent': 'curl/8'})  # Cloudflare 403s Python's UA
-                with urllib.request.urlopen(req) as r, open(pdf, 'wb') as f:
-                    f.write(r.read())
-            assert open(pdf, 'rb').read(4) == b'%PDF', f'{key} is not a PDF'
+        req = urllib.request.Request(SITE + urllib.parse.quote(key), headers={'User-Agent': 'curl/8'})  # Cloudflare 403s Python's UA
+        with urllib.request.urlopen(req) as r, open(pdf, 'wb') as f:
+            f.write(r.read())
+        assert open(pdf, 'rb').read(4) == b'%PDF', f'{key} is not a PDF'
         preview = f'previews/{key.removesuffix(".pdf")}.jpg'
         jpg = f'{out}/{preview}'
         os.makedirs(os.path.dirname(jpg), exist_ok=True)
-        if not os.path.exists(jpg):
-            subprocess.run(['pdftoppm', '-f', '1', '-l', '1', '-singlefile', '-jpeg', '-jpegopt', 'quality=80',
-                            '-scale-to-x', '440', '-scale-to-y', '-1', pdf, jpg.removesuffix('.jpg')], check=True)
+        subprocess.run(['pdftoppm', '-f', '1', '-l', '1', '-singlefile', '-jpeg', '-jpegopt', 'quality=80',
+                       '-scale-to-x', '440', '-scale-to-y', '-1', pdf, jpg.removesuffix('.jpg')], check=True)
         course, year, name, sol = parse(key)
         assert re.fullmatch(r'[A-Z]{3}\d{3}', course) and name, key
         rows.append(f'({q(key)}, {q(preview)}, {q(course)}, {q(year)}, {q(name)}, {int(sol)}, 1)')

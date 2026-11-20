@@ -1,6 +1,6 @@
 import { parseMeta } from '../../../shared/meta'
 
-// Behind _middleware.ts (Cloudflare Access).
+// Protected by Cloudflare Access on /admin and /api/admin.
 // GET                                       -> pending uploads (approved = 0)
 // POST {key, course, year, name, solutions} -> fix metadata and approve
 // DELETE ?key=...                           -> reject: delete row and its R2 objects
