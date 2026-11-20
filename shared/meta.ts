@@ -1,19 +1,30 @@
-// What GET /api/repo returns per file.
-export type Entry = { file: string, preview: string | null, course: string, year: number | null, name: string, solutions: boolean }
+export const types = ['midterm', 'final', 'quiz'] as const
 
-// Validates a file's metadata (course/year/name/solutions); used by upload and admin approve.
-export type Meta = { course: string, year: number | null, name: string, solutions: number }
+export type Meta = { course: string, session: string | null, type: typeof types[number] | null, number: number | null, practice: boolean, solutions: boolean }
+export type Entry = Meta & { id: number, pdf: string, preview: string }
+
+// UofT session codes: 20259 = Fall 2025, 20261 = Winter 2026, 20255 = Summer 2025, 20259-20261 = Fall-Winter 2025-26
+const terms: Record<string, string> = { '9': 'Fall', '1': 'Winter', '5': 'Summer' }
+export const sessionLabel = (s: string | null) =>
+    !s ? '' : s.includes('-') ? `${s.slice(0, 4)}–${s.slice(8, 10)}` : `${terms[s[4]]} ${s.slice(0, 4)}`
+
+export const sessions = (from = 2005, to = new Date().getFullYear()) =>
+    Array.from({ length: to - from + 1 }, (_, i) => to - i).flatMap(y =>
+        [`${y}9-${y + 1}1`, `${y}9`, `${y}5`, `${y}1`])
+
+export const title = (m: Meta) =>
+    `${m.practice ? 'Practice ' : ''}${m.type ? m.type[0].toUpperCase() + m.type.slice(1) : 'Test'}${m.number ? ` ${m.number}` : ''}`
 
 export function parseMeta(get: (k: string) => unknown): Meta | string {
-    const course = String(get('course') ?? '').trim().toUpperCase()
-    const y = get('year')
-    const year = y === null || y === undefined || y === '' ? null : Number(y)
-    const name = String(get('name') ?? '').trim()
-    const s = get('solutions')
-    const solutions = s === true || s === 'on' || s === 1 ? 1 : 0
+    const course = String(get('course') ?? '').replace(/\s/g, '').toUpperCase()
+    const session = String(get('session') ?? '') || null
+    const type = (String(get('type') ?? '') || null) as Meta['type']
+    const number = get('number') ? Number(get('number')) : null
+    const bool = (k: string) => [true, 'on', 'true', 1].includes(get(k) as any)
 
-    if (!/^[A-Z]{3}\d{3}$/.test(course)) return 'course should look like MAT137'
-    if (year !== null && !(Number.isInteger(year) && year >= 1990 && year <= 2100)) return 'bad year'
-    if (!name || name.length > 100) return 'name required (100 chars max)'
-    return { course, year, name, solutions }
+    if (!course || course.length > 16) return 'course required'
+    if (session && !/^\d{5}(-\d{5})?$/.test(session)) return 'bad session'
+    if (type && !types.includes(type)) return 'bad type'
+    if (number !== null && !(Number.isInteger(number) && number > 0 && number < 20)) return 'bad number'
+    return { course, session, type, number, practice: bool('practice'), solutions: bool('solutions') }
 }

@@ -1,11 +1,14 @@
 CREATE TABLE files (
-    key TEXT PRIMARY KEY,          -- R2 key of the PDF
-    preview TEXT,                  -- R2 key of the first-page image
-    course TEXT NOT NULL,          -- e.g. MAT137
-    year INTEGER,
-    name TEXT NOT NULL,            -- e.g. Midterm 1
-    solutions INTEGER NOT NULL DEFAULT 0,
-    approved INTEGER NOT NULL DEFAULT 0,
+    id INTEGER PRIMARY KEY,
+    pdf TEXT NOT NULL,
+    preview TEXT NOT NULL,
+    course TEXT NOT NULL,
+    session TEXT,
+    type TEXT CHECK (type IN ('midterm', 'final', 'quiz')),
+    number INTEGER,
+    practice BOOLEAN NOT NULL DEFAULT FALSE,
+    solutions BOOLEAN NOT NULL DEFAULT FALSE,
+    approved BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX files_course ON files(course, approved);

@@ -1,9 +1,9 @@
 import { parseMeta } from '../../../shared/meta'
 
-// Anyone can upload; rows land with approved = 0 and show only once approved on /admin.
+const PUBLIC = 'https://murepo.bbrb.ca/'
+
 export async function onRequestPost(context: any) {
     const bucket = context.env.BUCKET as R2Bucket
-    const db = context.env.DB as D1Database
     const form = await context.request.formData()
     const pdf = form.get('file'), preview = form.get('preview')
 
@@ -11,15 +11,15 @@ export async function onRequestPost(context: any) {
     if (!(pdf instanceof File) || pdf.type !== 'application/pdf') return bad('file must be a PDF')
     if (pdf.size > 50e6) return bad('PDF too large (50 MB max)')
     if (!(preview instanceof File) || !preview.type.startsWith('image/') || preview.size > 2e6) return bad('bad preview image')
-    const meta = parseMeta(k => form.get(k))
-    if (typeof meta === 'string') return bad(meta)
+    const m = parseMeta(k => form.get(k))
+    if (typeof m === 'string') return bad(m)
 
     const id = crypto.randomUUID()
-    const key = `${id}.pdf`, previewKey = `previews/${id}.webp`
-    await bucket.put(key, pdf.stream(), { httpMetadata: { contentType: 'application/pdf' } })
-    await bucket.put(previewKey, preview.stream(), { httpMetadata: { contentType: preview.type } })
-    await db.prepare('INSERT INTO files (key, preview, course, year, name, solutions) VALUES (?, ?, ?, ?, ?, ?)')
-        .bind(key, previewKey, meta.course, meta.year, meta.name, meta.solutions).run()
+    await bucket.put(`${id}.pdf`, pdf.stream(), { httpMetadata: { contentType: 'application/pdf' } })
+    await bucket.put(`previews/${id}.webp`, preview.stream(), { httpMetadata: { contentType: preview.type } })
+    await (context.env.DB as D1Database).prepare(
+        'INSERT INTO files (pdf, preview, course, session, type, number, practice, solutions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(`${PUBLIC}${id}.pdf`, `${PUBLIC}previews/${id}.webp`, m.course, m.session, m.type, m.number, +m.practice, +m.solutions).run()
 
-    return new Response('ok, waiting for approval')
+    return new Response('Thanks! It will show up once approved.')
 }
